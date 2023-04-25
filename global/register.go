@@ -23,18 +23,19 @@ func RegisterConsul() (serviceId string) {
 	port := ServerConfig.Port
 
 	serviceId = fmt.Sprintf("%s-%s", ip, uuid.NewV4())
-	name := fmt.Sprintf("%s(%s)", ServiceName, ip)
+	name := fmt.Sprintf("%s(%d)", ServiceName, port)
 
 	reg := new(api.AgentServiceRegistration)
 	reg.ID = serviceId           // 服务节点的名称
 	reg.Name = name              // 服务名称
 	reg.Address = ip             // 服务 IP
-	reg.Port = port              // 服务端口
+	reg.Port = port              // 服务端口ßßßß
 	reg.Tags = []string{"v1000"} // tag，可以为空
 
-	checkUrl := fmt.Sprintf("http://%s:%d%s", reg.Address, port, "/api/test")
+	checkUrl := fmt.Sprintf("%s:%d", ip, port)
 	reg.Check = &api.AgentServiceCheck{ // 健康检查
-		HTTP:                           checkUrl,
+		GRPC:                           checkUrl,
+		GRPCUseTLS:                     false,
 		Timeout:                        "3s",
 		Interval:                       "5s",  // 健康检查间隔
 		DeregisterCriticalServiceAfter: "30s", //check失败后30秒删除本服务，注销时间，相当于过期时间
